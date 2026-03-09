@@ -7,18 +7,20 @@ namespace MauiAppMinhasCompras.Helpers
     {
         readonly SQLiteAsyncConnection _conn;
 
-        public SQLiteDatabaseHelper(string path) 
-        { 
+        public SQLiteDatabaseHelper(string path)
+        {
             _conn = new SQLiteAsyncConnection(path);
             _conn.CreateTableAsync<Produto>().Wait();
         }
 
-        public Task<int> Insert(Produto p) 
+        // INSERIR PRODUTO
+        public Task<int> Insert(Produto p)
         {
             return _conn.InsertAsync(p);
         }
 
-        public Task<List<Produto>> Update(Produto p) 
+        // ATUALIZAR PRODUTO
+        public Task<List<Produto>> Update(Produto p)
         {
             string sql = "UPDATE Produto SET Descricao=?, Quantidade=?, " +
                          "Preco=? WHERE Id=?";
@@ -28,22 +30,32 @@ namespace MauiAppMinhasCompras.Helpers
             );
         }
 
-        public Task<int> Delete(int id) 
+        // DELETAR PRODUTO POR ID
+        public Task<int> Delete(int id)
         {
             return _conn.Table<Produto>().DeleteAsync(i => i.Id == id);
         }
 
-        public Task<List<Produto>> GetAll() 
+        // BUSCAR TODOS OS PRODUTOS
+        public Task<List<Produto>> GetAll()
         {
             return _conn.Table<Produto>().ToListAsync();
         }
 
-        public Task<List<Produto>> Search(string q) 
+        // PESQUISAR PRODUTOS
+        public Task<List<Produto>> Search(string q)
         {
             string sql = "SELECT * FROM Produto " +
                          "WHERE descricao LIKE '%" + q + "%'";
 
             return _conn.QueryAsync<Produto>(sql);
         }
+
+        // APAGAR TODOS OS PRODUTOS
+        public Task<int> DeleteAll()
+        {
+            return _conn.DeleteAllAsync<Produto>();
+        }
+
     } // Fecha classe SQLiteDatabaseHelper
-} // Fecha namespace MauiAppMinhasCompras.Helpers
+} // Fecha namespace

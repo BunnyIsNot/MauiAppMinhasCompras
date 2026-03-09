@@ -3,15 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppMinhasCompras.Views.ListaProduto"
              Title="🛒 Minhas Compras"
+             BackgroundColor="#F1F8E9">
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Adicionar" Clicked="ToolbarItem_Clicked" />
     </ContentPage.ToolbarItems>
 
+    
+
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style TargetType="Label">
                 <Setter Property="VerticalTextAlignment" Value="Center" />
+                <Setter Property="TextColor" Value="Black" />
             </Style>
             <Style x:Key="cabecalho_listview" TargetType="Grid">
                 <Setter Property="BackgroundColor"
@@ -32,6 +36,12 @@
                 </OnPlatform>
             </SearchBar.Margin>
         </SearchBar>
+
+        <Button Text="🗑 Limpar Lista"
+            BackgroundColor="#C62828"
+            TextColor="White"
+            Margin="10"
+            Clicked="BtnLimparLista_Clicked"/>
 
         <Frame Padding="0" Margin="10" VerticalOptions="FillAndExpand">
             <ListView x:Name="lst_produtos"
@@ -67,5 +77,14 @@
                 </ListView.ItemTemplate>
             </ListView>
         </Frame>
+        
+        <Label x:Name="lbl_total"
+       Text="Total: R$ 0,00"
+       FontSize="20"
+       FontAttributes="Bold"
+       TextColor="black"
+       HorizontalOptions="End"
+       Margin="10"/>
+
     </StackLayout>
 </ContentPage>

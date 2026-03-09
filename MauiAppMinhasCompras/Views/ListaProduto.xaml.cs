@@ -10,7 +10,6 @@ public partial class ListaProduto : ContentPage
     public ListaProduto()
     {
         InitializeComponent();
-
         lst_produtos.ItemsSource = lista;
     }
 
@@ -21,23 +20,12 @@ public partial class ListaProduto : ContentPage
             lista.Clear();
             List<Produto> tmp = await App.Db.GetAll();
             tmp.ForEach(i => lista.Add(i));
+
+            AtualizarTotal(); // Atualiza o total ao carregar
         }
         catch (Exception ex)
         {
             await DisplayAlert("Ops", ex.Message, "OK");
-        }
-    }
-
-    private void ToolbarItem_Clicked(object sender, EventArgs e)
-    {
-        try
-        {
-            Navigation.PushAsync(new Views.NovoProduto());
-
-        }
-        catch (Exception ex)
-        {
-            DisplayAlert("Ops", ex.Message, "OK");
         }
     }
 
@@ -54,6 +42,8 @@ public partial class ListaProduto : ContentPage
             List<Produto> tmp = await App.Db.Search(q);
 
             tmp.ForEach(i => lista.Add(i));
+
+            AtualizarTotal(); // Atualiza após busca
         }
         catch (Exception ex)
         {
@@ -65,29 +55,40 @@ public partial class ListaProduto : ContentPage
         }
     }
 
-    private void ToolbarItem_Clicked_1(object sender, EventArgs e)
+    private void ToolbarItem_Clicked(object sender, EventArgs e)
     {
-        double soma = lista.Sum(i => i.Total);
+        try
+        {
+            Navigation.PushAsync(new Views.NovoProduto());
+        }
+        catch (Exception ex)
+        {
+            DisplayAlert("Ops", ex.Message, "OK");
+        }
+    }
 
-        string msg = $"O total é {soma:C}";
-
-        DisplayAlert("Total dos Produtos", msg, "OK");
+    private void AtualizarTotal()  // Método responsável por recalcular e atualizar o valor total exibido
+    {
+        double total = lista.Sum(p => p.Total);
+        lbl_total.Text = $"Total: {total:C}";
     }
 
     private async void MenuItem_Clicked(object sender, EventArgs e)
     {
         try
         {
-            MenuItem selecinado = sender as MenuItem;
-            Produto p = selecinado.BindingContext as Produto;
+            MenuItem selecionado = sender as MenuItem;
+            Produto p = selecionado.BindingContext as Produto;
 
             bool confirm = await DisplayAlert(
                 "Tem Certeza?", $"Remover {p.Descricao}?", "Sim", "Não");
 
-            if(confirm)
+            if (confirm)
             {
                 await App.Db.Delete(p.Id);
                 lista.Remove(p);
+
+                AtualizarTotal(); // Atualiza após remover
             }
         }
         catch (Exception ex)
@@ -96,8 +97,7 @@ public partial class ListaProduto : ContentPage
         }
     }
 
-    private void lst_produtos_ItemSelected(object sender, 
-        SelectedItemChangedEventArgs e)
+    private void lst_produtos_ItemSelected(object sender, SelectedItemChangedEventArgs e)
     {
         try
         {
@@ -123,14 +123,46 @@ public partial class ListaProduto : ContentPage
             List<Produto> tmp = await App.Db.GetAll();
 
             tmp.ForEach(i => lista.Add(i));
+
+            AtualizarTotal(); // Atualiza após refresh
         }
         catch (Exception ex)
         {
             await DisplayAlert("Ops", ex.Message, "OK");
-
-        } finally
+        }
+        finally
         {
             lst_produtos.IsRefreshing = false;
+        }
+    }
+
+    private async void BtnLimparLista_Clicked(object sender, EventArgs e)
+    {
+        try
+        {
+            bool confirmacao = await DisplayAlert(
+                "Confirmação",
+                "Deseja remover TODOS os produtos da lista?",
+                "Sim",
+                "Não");
+
+            if (confirmacao)
+            {
+                foreach (var produto in lista.ToList())
+                {
+                    await App.Db.Delete(produto.Id);
+                }
+
+                lista.Clear();
+
+                AtualizarTotal(); // Atualiza após limpar
+
+                await DisplayAlert("Sucesso", "Lista limpa com sucesso!", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Erro", ex.Message, "OK");
         }
     }
 }

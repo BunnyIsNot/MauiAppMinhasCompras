@@ -4,10 +4,17 @@ namespace MauiAppMinhasCompras.Views;
 
 public partial class NovoProduto : ContentPage
 {
-	public NovoProduto()
-	{
-		InitializeComponent();
-	}
+    public NovoProduto()
+    {
+        InitializeComponent();
+    }
+
+    private void BtnLimpar_Clicked(object sender, EventArgs e)
+    {
+        txt_descricao.Text = "";
+        txt_quantidade.Text = "";
+        txt_preco.Text = "";
+    }
 
     private async void ToolbarItem_Clicked(object sender, EventArgs e)
     {
