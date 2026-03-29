@@ -4,10 +4,10 @@ namespace MauiAppMinhasCompras.Views;
 
 public partial class EditarProduto : ContentPage
 {
-	public EditarProduto()
-	{
-		InitializeComponent();
-	}
+    public EditarProduto()
+    {
+        InitializeComponent();
+    }
 
     private async void ToolbarItem_Clicked(object sender, EventArgs e)
     {
@@ -15,21 +15,52 @@ public partial class EditarProduto : ContentPage
         {
             Produto produto_anexado = BindingContext as Produto;
 
+            if (produto_anexado == null)
+            {
+                await DisplayAlert("Erro", "Produto não encontrado.", "OK");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txt_descricao.Text))
+            {
+                await DisplayAlert("Erro", "Digite a descrição.", "OK");
+                return;
+            }
+
+            if (!double.TryParse(txt_quantidade.Text, out double quantidade))
+            {
+                await DisplayAlert("Erro", "Quantidade inválida.", "OK");
+                return;
+            }
+
+            if (!double.TryParse(txt_preco.Text, out double preco))
+            {
+                await DisplayAlert("Erro", "Preço inválido.", "OK");
+                return;
+            }
+
             Produto p = new Produto
             {
                 Id = produto_anexado.Id,
                 Descricao = txt_descricao.Text,
-                Quantidade = Convert.ToDouble(txt_quantidade.Text),
-                Preco = Convert.ToDouble(txt_preco.Text)
+                Quantidade = quantidade,
+                Preco = preco
             };
 
             await App.Db.Update(p);
-            await DisplayAlert("Sucesso!", "Registro Atualizado", "OK");
+
+            await DisplayAlert("Sucesso!", "Registro atualizado com sucesso.", "OK");
+
             await Navigation.PopAsync();
         }
-        catch (Exception ex)
+        catch (FormatException)
         {
-            await DisplayAlert("Ops", ex.Message, "OK");
+            await DisplayAlert("Erro", "Formato de número inválido.", "OK");
+        }
+        catch (Exception)
+        {
+            await DisplayAlert("Erro", "Ocorreu um erro inesperado.", "OK");
         }
     }
 }
+
